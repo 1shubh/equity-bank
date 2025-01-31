@@ -1,4 +1,4 @@
-package com.shubhkmr.equitybank
+package com.graphicslevels.equitybank
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

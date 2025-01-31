@@ -22,6 +22,7 @@ import { kenyaCities } from "../constants/kenyaCitities";
 import { kenyabanks, tanzaniaBanks, ugandaBanks } from "../constants/banks";
 import { SearchBar } from "react-native-screens";
 import { useEffect } from "react";
+import { generateTransactionNumber } from "../constants/getInitialName";
 
 const countrylist = [
   {
@@ -88,7 +89,6 @@ const BankTransfer = () => {
     }
   }, [selectedCountry]);
 
-
   function maskMobileNumber(number) {
     const numberStr = number.toString(); // Convert to string if it's not already
     return numberStr.slice(0, 2) + "******" + numberStr.slice(-2);
@@ -103,26 +103,6 @@ const BankTransfer = () => {
     accountNumber.trim() !== "" &&
     reciepentName.trim() !== "" &&
     amount.trim() !== "";
-
-  const sendTodetails = {
-    transactionVia: "Send to another bank",
-    amount: amount,
-    parsedDetails: {
-      selectedCountry: selectedCountry,
-      selectedCurrency: selectedCurrency,
-      selectedDelivery: null,
-      recipentDetails: {
-        firstname: reciepentName,
-        middleName: "",
-        lastName: "",
-        selectedBankName: selectedBank,
-        AccountNumber: accountNumber,
-        selectedRemmitance: "",
-        seletedTransactionpurpose: "",
-        selectedRelationship: "",
-      },
-    },
-  };
 
   const openSendtomoda = () => {
     setSendToModal(true);
@@ -173,6 +153,32 @@ const BankTransfer = () => {
   };
 
   const handleSendMoney = () => {
+    const newTransaction = generateTransactionNumber();
+    const smsCharges =
+    amount <= 500 ? (amount * 2.9) / 100 : (amount * 1.6) / 100;
+
+    const sendTodetails = {
+      transactionVia: "Send to another bank",
+      amount: amount,
+      type:"bank-transfer",
+      smsCharges: smsCharges,
+      transactionNumber: newTransaction,
+      parsedDetails: {
+        selectedCountry: selectedCountry,
+        selectedCurrency: selectedCurrency,
+        selectedDelivery: null,
+        recipentDetails: {
+          firstname: reciepentName,
+          middleName: "",
+          lastName: "",
+          selectedBankName: selectedBank,
+          AccountNumber: accountNumber,
+          selectedRemmitance: "",
+          seletedTransactionpurpose: "",
+          selectedRelationship: "",
+        },
+      },
+    };
     router.push({
       pathname: "paymentconfirmation",
       params: {
@@ -241,7 +247,9 @@ const BankTransfer = () => {
               onPress={() => openSendtomoda()}
             >
               <View>
-                {reciepentName === "" && accountNumber === "" && selectedBank ==="" ? (
+                {reciepentName === "" &&
+                accountNumber === "" &&
+                selectedBank === "" ? (
                   <Text
                     maxFontSizeMultiplier={1}
                     className="text-xl font-mregular"
@@ -367,55 +375,57 @@ const BankTransfer = () => {
                   <AntDesign name="search1" size={20} color="black" />
                 </View>
                 <ScrollView>
-                  {filterbankList.map((ele, i) => {
-                    return (
-                      <TouchableOpacity
-                        key={i}
-                        className="mt-5 flex-row items-center justify-between border-b border-b-lightbg pb-5"
-                        onPress={() => setSelectedBank(ele.name)}
-                      >
-                        <View>
-                          <Text className="font-sregular uppercase text-2xl text-left">
-                            {ele.name}
-                          </Text>
-                          {ele.bankCode && (
-                            <Text className="text-xl font-sregular text-lighttext">
-                              {ele.bankCode}. {ele.code}
+                  {filterbankList
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((ele, i) => {
+                      return (
+                        <TouchableOpacity
+                          key={i}
+                          className="mt-5 flex-row items-center justify-between border-b border-b-lightbg pb-5"
+                          onPress={() => setSelectedBank(ele.name)}
+                        >
+                          <View>
+                            <Text className="font-sregular uppercase text-2xl text-left">
+                              {ele.name}
                             </Text>
-                          )}
-                        </View>
+                            {ele.bankCode && (
+                              <Text className="text-xl font-sregular text-lighttext">
+                                {ele.bankCode}. {ele.code}
+                              </Text>
+                            )}
+                          </View>
 
-                        <Image
-                          source={icons.radio}
-                          className="w-10 h-10"
-                          resizeMode="contain"
-                          tintColor={"#a32e2d"}
-                        />
-                      </TouchableOpacity>
-                    );
-                  })}
+                          <Image
+                            source={icons.radio}
+                            className="w-10 h-10"
+                            resizeMode="contain"
+                            tintColor={"#a32e2d"}
+                          />
+                        </TouchableOpacity>
+                      );
+                    })}
                 </ScrollView>
               </View>
             ) : (
               <View>
-                 <View className="h-[50px] pr-2 mt-5 border-b border-lighttext flex-row items-center justify-between">
-                <TextInput
-                  placeholder="Enter recipient name"
-                  className="h-full text-xl w-[95%] font-sregular"
-                  value={reciepentName}
-                  onChangeText={(text) => setRecipentName(text)}
-                />
-                <AntDesign name="user" size={24} color="#a32e2d" />
-              </View>
-              <View className="h-[50px] pr-2 mt-5 border-b border-lighttext flex-row items-center justify-between">
-                <TextInput
-                  placeholder="Enter an account number"
-                  className="h-full text-xl w-[95%] font-sregular"
-                  value={accountNumber}
-                  onChangeText={(text) => setAccountNumber(text)}
-                />
-                <AntDesign name="contacts" size={24} color="#a32e2d" />
-              </View>
+                <View className="h-[50px] pr-2 mt-5 border-b border-lighttext flex-row items-center justify-between">
+                  <TextInput
+                    placeholder="Enter recipient name"
+                    className="h-full text-xl w-[95%] font-sregular"
+                    value={reciepentName}
+                    onChangeText={(text) => setRecipentName(text)}
+                  />
+                  <AntDesign name="user" size={24} color="#a32e2d" />
+                </View>
+                <View className="h-[50px] pr-2 mt-5 border-b border-lighttext flex-row items-center justify-between">
+                  <TextInput
+                    placeholder="Enter an account number"
+                    className="h-full text-xl w-[95%] font-sregular"
+                    value={accountNumber}
+                    onChangeText={(text) => setAccountNumber(text)}
+                  />
+                  <AntDesign name="contacts" size={24} color="#a32e2d" />
+                </View>
               </View>
             )}
           </View>

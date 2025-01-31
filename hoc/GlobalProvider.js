@@ -18,7 +18,7 @@ const GlobalProvider = ({ children }) => {
     setError(""); // Clear previous error
     try {
       const response = await fetch(
-        "https://bank-backend-a00q.onrender.com/api/users/login",
+        "https://bank-backend-1-4cqz.onrender.com/api/users/login",
         {
           method: "POST",
           headers: {

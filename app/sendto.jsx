@@ -11,7 +11,8 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
-import React, { useState } from "react";
+import { kenyabanks, tanzaniaBanks, ugandaBanks } from "../constants/banks";
+import React, { useEffect, useState } from "react";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { icons } from "../constants/icons";
 import { router } from "expo-router";
@@ -22,7 +23,7 @@ import CustomButton from "../components/CustomButton";
 import { purposeofremmitance } from "../constants/purposeofremittance";
 import { transactionpurpose } from "../constants/transactionPurpose";
 import { relationshipToReciver } from "../constants/relationshiptoreciver";
-
+import { allBanks } from "../constants/banks";
 const deliveryMethod = [
   {
     title: "DIRECT TO BANK",
@@ -39,6 +40,7 @@ const SendTo = () => {
   const [countrymodal, setCountryModal] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedBankCountry, setSelectedBankCountry] = useState([]);
   const [deliveryModal, setDeliveryModal] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState("");
   const [reciverModal, setReciverModal] = useState(false);
@@ -48,6 +50,8 @@ const SendTo = () => {
   const [AccountNumber, setAccountNumber] = useState("");
   const [selectedBankName, setSelectedBankName] = useState("");
   const [bankModal, setBankModal] = useState(false);
+  const [filterBanks, setFilterBanks] = useState(selectedBankCountry);
+  const [searchBank, setSearchBank] = useState("");
   const [remittanceModal, setRemittanceModal] = useState(false);
   const [selectedRemmitance, setSelectedRemittance] = useState("");
   const [transactionModal, setTransactionModal] = useState(false);
@@ -56,6 +60,31 @@ const SendTo = () => {
   );
   const [relationshipModal, setRelationshipModal] = useState(false);
   const [selectedRelationship, setSelectedRelationship] = useState("");
+
+  useEffect(() => {
+    // Update selectedBankCountry when selectedCountry changes
+    if (selectedCountry === "Kenya") {
+      setSelectedBankCountry(kenyabanks);
+    } else if (selectedCountry === "Tanzania") {
+      setSelectedBankCountry(tanzaniaBanks);
+    } else if (selectedCountry === "Uganda") {
+      setSelectedBankCountry(ugandaBanks);
+    } else {
+      setSelectedBankCountry([]);
+    }
+  }, [selectedCountry]);
+  useEffect(() => {
+    // Filter the bank list when selectedBankCountry or searchBank changes
+    if (searchBank.trim() === "") {
+      setFilterBanks(selectedBankCountry);
+    } else {
+      const filtered = selectedBankCountry?.filter((bank) =>
+        bank.name.toLowerCase().includes(searchBank.toLowerCase())
+      );
+      setFilterBanks(filtered);
+    }
+  }, [searchBank, selectedBankCountry]);
+
   //   country modal
   const openCountryModal = () => {
     setCountryModal(true);
@@ -80,6 +109,10 @@ const SendTo = () => {
       );
       setFilteredCountries(filtered); // Update the filtered countries
     }
+  };
+  // handle search banks
+  const handleSearchBanks = (text) => {
+    setSearchBank(text);
   };
   //delivery modal
   const openDeliverymodal = () => {
@@ -154,7 +187,7 @@ const SendTo = () => {
   const isFormValid =
     firstname.trim() !== "" &&
     lastName.trim() !== "" &&
-    // selectedBankName.trim() !== "" &&
+    selectedBankName.trim() !== "" &&
     AccountNumber.trim() !== "" &&
     selectedRemmitance.trim() !== "" &&
     seletedTransactionpurpose.trim() !== "" &&
@@ -183,6 +216,11 @@ const SendTo = () => {
       pathname: "westernunion",
       params: { sendToDetails: JSON.stringify(sendToDetails) },
     });
+  };
+
+  const handleBankSelect = (ele) => {
+    setSelectedBankName(ele.name);
+    closebankmodal();
   };
 
   return (
@@ -482,7 +520,9 @@ const SendTo = () => {
                     maxFontSizeMultiplier={1}
                     className="text-xl font-mregular text-lighttext"
                   >
-                    Select Bank name
+                    {selectedBankName === ""
+                      ? "Select Bank name"
+                      : selectedBankName}
                   </Text>
                 </View>
                 <View className="ml-10">
@@ -618,12 +658,50 @@ const SendTo = () => {
           <TextInput
             placeholder="Search Bank"
             className="text-xl h-full font-ssemibold w-[80%]"
-            value={searchText}
-            onChangeText={handleSearch}
+            value={searchBank}
+            onChangeText={handleSearchBanks}
           />
           <AntDesign name="search1" size={20} color="black" />
         </View>
-        <ScrollView></ScrollView>
+        <ScrollView>
+          {filterBanks.length === 0 ? (
+            <Text
+              className="text-2xl mt-5 font-ssemibold text-center "
+              maxFontSizeMultiplier={1}
+            >
+              No Banks Found for {selectedCountry}
+            </Text>
+          ) : (
+            filterBanks
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((ele, i) => {
+                return (
+                  <TouchableOpacity
+                    key={i}
+                    className="mt-5 flex-row items-center justify-between border-b border-b-lightbg pb-5"
+                    onPress={() => handleBankSelect(ele)}
+                  >
+                    <View>
+                      <Text className="font-sregular uppercase text-2xl text-left">
+                        {ele.name}
+                      </Text>
+                      {ele.bankCode && (
+                        <Text className="text-xl font-sregular text-lighttext">
+                          {ele.bankCode}. {ele.code}
+                        </Text>
+                      )}
+                    </View>
+                    <Image
+                      source={icons.radio}
+                      className="w-10 h-10"
+                      resizeMode="contain"
+                      tintColor={"#a32e2d"}
+                    />
+                  </TouchableOpacity>
+                );
+              })
+          )}
+        </ScrollView>
       </BottomModal>
       {/* purpose of remittance modal */}
       <BottomModal

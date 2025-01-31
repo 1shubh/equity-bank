@@ -21,27 +21,29 @@ import BottomModal from "../components/BottomModal";
 import { kenyaCities } from "../constants/kenyaCitities";
 import { countrylist } from "../constants/countryList";
 import { images } from "../constants/images";
+import { generateTransactionNumber } from "../constants/getInitialName";
 
 const operators = [
   {
     title: "M-PESA",
     image: images.mpesa,
-    subtitle:"Mpesa"
+    subtitle: "mpesa",
   },
   {
     title: "Airtel Money",
     image: images.airtel,
-    subtitle:"Airtel money"
+    subtitle: "airtel money",
   },
 ];
 const MobileTransfer = () => {
   const { login, loading, isLogged, error, user } = useGlobalContext();
+  const [transactionNumber, setTransactionNumber] = useState("");
   const [selectedOperator, setSelectedOperator] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [reciepentName, setRecipentName] = useState("");
   const [amount, setAmount] = useState("");
- 
+
   const [sendtoModal, setSendToModal] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("Kenya");
   const [selectedCurrency, setSelectedCurrency] = useState("KES");
@@ -60,26 +62,6 @@ const MobileTransfer = () => {
     reciepentName.trim() !== "" &&
     amount.trim() !== "";
 
-  const sendTodetails = {
-    transactionVia: "Send to Mobile number",
-    amount: amount,
-    parsedDetails: {
-      selectedCountry: "",
-      selectedCurrency: "",
-      selectedDelivery: null,
-      recipentDetails: {
-        firstname: reciepentName,
-        middleName: "",
-        lastName: "",
-        selectedBankName:selectedOperator,
-        AccountNumber:mobileNumber,
-        selectedRemmitance: "",
-        seletedTransactionpurpose: "",
-        selectedRelationship: "",
-      },
-    },
-  };
-
   const openSendtomoda = () => {
     setSendToModal(true);
   };
@@ -90,8 +72,35 @@ const MobileTransfer = () => {
   const handleSelectOperator = (ele) => {
     setSelectedOperator(ele.subtitle);
   };
-  
+
   const handleSendMoney = () => {
+    const newTransaction = generateTransactionNumber();
+    // setTransactionNumber(newTransaction);
+    const smsCharges =
+      amount <= 500 ? (amount * 2.9) / 100 : (amount * 1.6) / 100;
+      
+    const sendTodetails = {
+      transactionVia: "Send to Mobile number",
+      amount: amount,
+      type: "mobile-transfer",
+      smsCharges: smsCharges,
+      transactionNumber: newTransaction,
+      parsedDetails: {
+        selectedCountry: "",
+        selectedCurrency: "",
+        selectedDelivery: null,
+        recipentDetails: {
+          firstname: reciepentName,
+          middleName: "",
+          lastName: "",
+          selectedBankName: selectedOperator,
+          AccountNumber: mobileNumber,
+          selectedRemmitance: "",
+          seletedTransactionpurpose: "",
+          selectedRelationship: "",
+        },
+      },
+    };
     router.push({
       pathname: "/paymentconfirmation",
       params: {
@@ -173,7 +182,7 @@ const MobileTransfer = () => {
                 ) : (
                   <View>
                     <Text className="text-xl font-ssemibold">
-                      {reciepentName} .  +254 - {maskMobileNumber(mobileNumber)}
+                      {reciepentName} . +254 - {maskMobileNumber(mobileNumber)}
                     </Text>
                     <Text className="text-md font-sregular text-lighttext">
                       {selectedOperator}

@@ -49,7 +49,7 @@ const Verification = () => {
     try {
       // Proceed with the transfer logic using OTP
       const response = await fetch(
-        "https://bank-backend-a00q.onrender.com/api/users/transfer",
+        "https://bank-backend-1-4cqz.onrender.com/api/users/transfer",
         {
           method: "POST",
           headers: {
@@ -100,7 +100,7 @@ const Verification = () => {
       params: {
         amount: transactionDetails.amount,
         receipentName: `${transactionDetails?.parsedDetails.recipentDetails.firstname} ${transactionDetails?.parsedDetails.recipentDetails.lastName}`,
-        accountNumber:`${transactionDetails?.parsedDetails.recipentDetails.AccountNumber}`
+        accountNumber: `${transactionDetails?.parsedDetails.recipentDetails.AccountNumber}`,
       },
     });
   };

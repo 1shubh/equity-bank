@@ -21,6 +21,7 @@ import BottomModal from "../components/BottomModal";
 import { kenyaCities } from "../constants/kenyaCitities";
 import { countrylist } from "../constants/countryList";
 import { useEffect } from "react";
+import { generateTransactionNumber } from "../constants/getInitialName";
 
 const Equity = () => {
   const { login, loading, isLogged, error, user } = useGlobalContext();
@@ -33,7 +34,6 @@ const Equity = () => {
   const [filteredCountries, setFilteredCountries] = useState(countrylist);
   const [countrymodal, setCountryModal] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("KES");
-
 
   function maskMobileNumber(number) {
     const numberStr = number.toString(); // Convert to string if it's not already
@@ -52,6 +52,7 @@ const Equity = () => {
 
   const sendTodetails = {
     transactionVia: "Send to Equity account",
+
     amount: amount,
     parsedDetails: {
       selectedCountry: selectedCountry,
@@ -103,6 +104,33 @@ const Equity = () => {
   };
 
   const handleSendMoney = () => {
+    const newTransaction = generateTransactionNumber();
+    // setTransactionNumber(newTransaction);
+    const smsCharges =
+      amount <= 500 ? (amount * 2.9) / 100 : (amount * 1.6) / 100;
+
+    const sendTodetails = {
+      transactionVia: "Send to Equity account",
+      amount: amount,
+      type: "equity-transfer",
+      smsCharges: smsCharges,
+      transactionNumber: newTransaction,
+      parsedDetails: {
+        selectedCountry: selectedCountry,
+        selectedCurrency: selectedCurrency,
+        selectedDelivery: null,
+        recipentDetails: {
+          firstname: reciepentName,
+          middleName: "",
+          lastName: "",
+          selectedBankName: "",
+          AccountNumber: accountNumber,
+          selectedRemmitance: "",
+          seletedTransactionpurpose: "",
+          selectedRelationship: "",
+        },
+      },
+    };
     router.push({
       pathname: "paymentconfirmation",
       params: {

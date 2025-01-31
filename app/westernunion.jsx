@@ -19,6 +19,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useGlobalContext } from "../hoc/GlobalProvider";
 import BottomModal from "../components/BottomModal";
 import { kenyaCities } from "../constants/kenyaCitities";
+import { generateTransactionNumber } from "../constants/getInitialName";
 
 const WesternUnion = () => {
  
@@ -54,12 +55,20 @@ const WesternUnion = () => {
     selectedCity.trim() !== "" &&
     sendToDetails !== undefined;
 
-  const transactionDetails = {
-    transactionVia: "Western union",
-    amount,
-    parsedDetails,
-  };
+  
   const handleSendMoney = () => {
+    const newTransaction = generateTransactionNumber();
+    // setTransactionNumber(newTransaction);
+    const smsCharges =
+      amount <= 500 ? (amount * 2.9) / 100 : (amount * 1.6) / 100;
+      const transactionDetails = {
+        transactionVia: "Western union",
+        type:"western-union",
+        smsCharges:smsCharges,
+        transactionNumber: newTransaction,
+        amount,
+        parsedDetails,
+      };
     router.push({
       pathname: "paymentconfirmation",
       params: {

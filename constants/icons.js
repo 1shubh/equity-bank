@@ -28,25 +28,28 @@ import transact from "../assets/icons/transact.png";
 import borrow from "../assets/icons/borrow.png";
 import save from "../assets/icons/save.png";
 import iconMore from "../assets/icons/icon_more.png";
-import right from "../assets/icons/right.png"
-import kenyaFlag from "../assets/icons/flag_kenya.png"
-import usaFlag from "../assets/icons/usa_flag.png"
-import arrow from "../assets/icons/inot.png"
-import down from "../assets/icons/down.png"
-import up from "../assets/icons/up.png"
-import back from "../assets/icons/back.png"
-import next from  "../assets/icons/next.png"
-import card from "../assets/icons/card.png"
-import agent from "../assets/icons/agent.png"
-import paypal from "../assets/icons/paypal.png"
-import western from "../assets/icons/western.png"
-import close from "../assets/icons/close.png"
-import radio from "../assets/icons/radio.png"
-import fingerprint from "../assets/icons/fingerprint.png"
-import filter from "../assets/icons/filter.png"
-import arrowUp from "../assets/icons/arrow-up.png"
-import downright from "../assets/icons/down-right.png"
-import icon_ok from "../assets/icons/icon_ok.png"
+import right from "../assets/icons/right.png";
+import kenyaFlag from "../assets/icons/flag_kenya.png";
+import usaFlag from "../assets/icons/usa_flag.png";
+import arrow from "../assets/icons/inot.png";
+import down from "../assets/icons/down.png";
+import up from "../assets/icons/up.png";
+import back from "../assets/icons/back.png";
+import next from "../assets/icons/next.png";
+import card from "../assets/icons/card.png";
+import agent from "../assets/icons/agent.png";
+import paypal from "../assets/icons/paypal.png";
+import western from "../assets/icons/western.png";
+import close from "../assets/icons/close.png";
+import radio from "../assets/icons/radio.png";
+import fingerprint from "../assets/icons/fingerprint.png";
+import filter from "../assets/icons/filter.png";
+import arrowUp from "../assets/icons/arrow-up.png";
+import downright from "../assets/icons/down-right.png";
+import icon_ok from "../assets/icons/icon_ok.png";
+import arrowupbalance from "../assets/icons/arrow-up-blance.png";
+import arrowdownbalance from "../assets/icons/arrow-down.png";
+import downbalnce from "../assets/icons/down-balance.png";
 export const icons = {
   play,
   chat,
@@ -96,5 +99,8 @@ export const icons = {
   filter,
   arrowUp,
   downright,
-  icon_ok
+  icon_ok,
+  arrowupbalance,
+  arrowdownbalance,
+  downbalnce,
 };

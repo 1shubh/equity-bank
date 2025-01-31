@@ -2454,7 +2454,7 @@ export const countrylist = [
     },
     {
       countryCode: "TZ",
-      countryName: "Tanzania, United Republic of",
+      countryName: "Tanzania",
       currency: "TZS",
       currencySymbol: "Sh",
       nationality: "Tanzanian",

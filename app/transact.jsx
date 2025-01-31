@@ -382,6 +382,7 @@ const Transact = () => {
                     source={icons.account}
                     className="w-10 h-10"
                     resizeMode="contain"
+                    tintColor={"#a32e2d"}
                   />
                 </View>
                 <View className="w-[70%] ml-5">

@@ -17,7 +17,7 @@ import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { useGlobalContext } from "../../hoc/GlobalProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getInitials } from "../../constants/getInitialName";
+import { getInitials, getFirstName } from "../../constants/getInitialName";
 import Loader from "../../components/Loader";
 
 const Alreadyloggedin = () => {
@@ -44,12 +44,14 @@ const Alreadyloggedin = () => {
   };
   useEffect(() => {
     const currentHour = new Date().getHours();
-    if (currentHour < 12) {
+    if (currentHour >= 5 && currentHour < 12) {
       setGreeting("Good Morning");
-    } else if (currentHour < 18) {
+    } else if (currentHour >= 12 && currentHour < 16) {
       setGreeting("Good Afternoon");
-    } else {
+    } else if (currentHour >= 16 && currentHour < 21) {
       setGreeting("Good Evening");
+    } else {
+      setGreeting("Good Night");
     }
   }, []);
 
@@ -96,7 +98,7 @@ const Alreadyloggedin = () => {
             className="text-black text-center font-ssemibold text-2xl mt-5"
             maxFontSizeMultiplier={1}
           >
-            {greeting}! {user?.user.name}
+            {greeting}! {getFirstName(user?.user.name)}
           </Text>
           <View className="px-8">
             <Text

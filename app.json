@@ -9,14 +9,18 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.shubhkmr.equitybank"
+      "package": "com.graphicslevels.equitybank",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
@@ -45,6 +49,9 @@
       "eas": {
         "projectId": "9f096ef7-d192-4e39-8187-3bb71ddf88ee"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9f096ef7-d192-4e39-8187-3bb71ddf88ee"
     }
   }
 }

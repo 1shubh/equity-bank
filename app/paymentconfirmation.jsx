@@ -11,7 +11,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from "react-native";
-import BouncyCheckbox from "react-native-bouncy-checkbox";
 import Checkbox from "expo-checkbox";
 import React, { useState } from "react";
 import { icons } from "../constants/icons";
@@ -26,7 +25,7 @@ const PaymentConfirmation = () => {
   );
   const [parsedEquityDetails, setparsedEquityDetails] = useState(null);
   const [parsedMobileDetails, setparsedMobileDetails] = useState(null);
-  const [parsedBankDetails,setParsedBankDetails] = useState(null)
+  const [parsedBankDetails, setParsedBankDetails] = useState(null);
   const [isSelected, setSelection] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const { user } = useGlobalContext();
@@ -34,7 +33,7 @@ const PaymentConfirmation = () => {
     transactionDetails,
     transactionEquity,
     transactionMobile,
-    transactionBank
+    transactionBank,
   } = useGlobalSearchParams();
   function maskMobileNumber(number) {
     const numberStr = number.toString(); // Convert to string if it's not already
@@ -51,10 +50,15 @@ const PaymentConfirmation = () => {
     if (transactionMobile) {
       setparsedMobileDetails(JSON.parse(transactionMobile));
     }
-    if(transactionBank){
-      setParsedBankDetails(JSON.parse(transactionBank))
+    if (transactionBank) {
+      setParsedBankDetails(JSON.parse(transactionBank));
     }
-  }, [transactionDetails, transactionEquity, transactionMobile,transactionBank]);
+  }, [
+    transactionDetails,
+    transactionEquity,
+    transactionMobile,
+    transactionBank,
+  ]);
   // transaction details from western union
 
   // transaction details from equity bank
@@ -70,8 +74,8 @@ const PaymentConfirmation = () => {
   let newEquityBalance = userbalance - equityamountransfer;
   let mobileAmountTransfer = parseInt(parsedMobileDetails?.amount);
   let newMobileBalance = userbalance - mobileAmountTransfer;
-  let banktransferAmount = parseInt(parsedBankDetails?.amount)
-  let newBankBalance = userbalance - banktransferAmount
+  let banktransferAmount = parseInt(parsedBankDetails?.amount);
+  let newBankBalance = userbalance - banktransferAmount;
   const handleConfirm = () => {
     router.push({
       pathname: "verification",
@@ -104,7 +108,8 @@ const PaymentConfirmation = () => {
         transactionInfo: JSON.stringify(parsedBankDetails),
       },
     });
-  }
+  };
+  
   return (
     <View className="px-5 py-5 bg-white h-full">
       <View className="flex-row items-center justify-between">
@@ -267,7 +272,9 @@ const PaymentConfirmation = () => {
           <Text className="mt-5 text-md text-lighttext font-sregular">
             Charged
           </Text>
-          <Text className="text-xl font-ssemibold">2.26 KES</Text>
+          <Text className="text-xl font-ssemibold">
+            {parsedEquityDetails?.smsCharges} KES
+          </Text>
           <Text className="mt-5 text-md text-lighttext font-sregular">
             New balance
           </Text>
@@ -309,7 +316,9 @@ const PaymentConfirmation = () => {
           <Text className="mt-5 text-md text-lighttext font-sregular">
             Charged
           </Text>
-          <Text className="text-xl font-ssemibold">2.26 KES</Text>
+          <Text className="text-xl font-ssemibold">
+            {parsedMobileDetails?.smsCharges} KES
+          </Text>
           <Text className="mt-5 text-md text-lighttext font-sregular">
             New balance
           </Text>
@@ -352,7 +361,9 @@ const PaymentConfirmation = () => {
           <Text className="mt-5 text-md text-lighttext font-sregular">
             Charged
           </Text>
-          <Text className="text-xl font-ssemibold">2.26 KES</Text>
+          <Text className="text-xl font-ssemibold">
+            {parsedBankDetails?.smsCharges} KES
+          </Text>
           <Text className="mt-5 text-md text-lighttext font-sregular">
             New balance
           </Text>
@@ -363,7 +374,6 @@ const PaymentConfirmation = () => {
             {parsedBankDetails?.parsedDetails.recipentDetails.firstname}
           </Text>
           <Text className="text-xl text-black font-sregular">
-          
             {parsedBankDetails?.parsedDetails.recipentDetails.AccountNumber}
           </Text>
           <Text className="mt-5 text-md text-lighttext font-sregular">

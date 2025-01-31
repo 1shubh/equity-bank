@@ -17,8 +17,12 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useGlobalContext } from "../hoc/GlobalProvider";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Loader from "../components/Loader";
+import transactionHistoryLoading from "../assets/animations/transaction_history_loader_light.json";
 // import { TextInput } from "react-native-web";
-
+import { formatBalance, getInitials } from "../constants/getInitialName";
+import MobileTransferCard from "../components/MobileTransferCard";
+import BankTransferCard from "../components/BankTransfer";
+import EquityTransferCard from "../components/EquityTransferCard";
 const otherOptions = [
   {
     title: "Transact",
@@ -44,7 +48,7 @@ const otherOptions = [
 const MyAccount = () => {
   const { loading, user, login } = useGlobalContext();
   const [Statement, setStatement] = useState([]);
-  const [isloading,setisLoading] = useState(false)
+  const [isloading, setisLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [userData, setUserData] = useState(null); // Store fetched user data
   // console.log(user.user.statement);
@@ -66,25 +70,25 @@ const MyAccount = () => {
     return month;
   }
   const fetchUserByMobile = async () => {
-    setisLoading(true)
+    setisLoading(true);
     try {
       const mobileNumber = user?.user?.mobileNumber; // Assuming mobileNumber is available in global context
       if (!mobileNumber) return;
       const response = await fetch(
-        `https://bank-backend-a00q.onrender.com/api/users/getUserByMobile/${mobileNumber}`
+        `https://bank-backend-1-4cqz.onrender.com/api/users/getUserByMobile/${mobileNumber}`
       );
       const data = await response.json();
       if (response.ok) {
         setUserData(data); // Save fetched user data
         setStatement(data.statement);
-        setisLoading(false)
+        setisLoading(false);
       } else {
         console.error("Failed to fetch user data:", data.message);
-        setisLoading(false)
+        setisLoading(false);
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
-      setisLoading(false)
+      setisLoading(false);
     }
   };
   const latestStatement = Statement.sort(
@@ -105,6 +109,28 @@ const MyAccount = () => {
       setRefreshing(false); // End refreshing state
     }
   };
+
+  const groupTransactionsByDate = (transactions) => {
+    return transactions.reduce((acc, transaction) => {
+      const date = new Date(transaction.date).toISOString().split("T")[0]; // Extract date in 'YYYY-MM-DD' format
+      if (!acc[date]) {
+        acc[date] = []; // Initialize an array for the date if it doesn't exist
+      }
+      acc[date].push(transaction); // Push the transaction into the corresponding date array
+      return acc;
+    }, {});
+  };
+
+  const groupedTransactions = groupTransactionsByDate(Statement);
+
+  // Transform grouped data into an array format if needed
+  const groupedTransactionsArray = Object.entries(groupedTransactions).map(
+    ([date, transactions]) => ({
+      date,
+      transactions,
+    })
+  );
+
   return (
     <View className="bg-white h-full">
       <View className="flex-row items-center justify-between px-5 py-5">
@@ -169,7 +195,7 @@ const MyAccount = () => {
         </Text>
         <View className="flex-row items-center justify-center gap-3">
           <Text className="text-3xl font-ssemibold">
-            {user?.user.balance} KES
+            {formatBalance(user?.user.balance)} KES
           </Text>
 
           <AntDesign name="down" size={24} color="#a32e2d" />
@@ -196,84 +222,157 @@ const MyAccount = () => {
             );
           })}
         </View>
-        <Text className="text-2xl font-ssemibold ml-5">
-          Transaction History
-        </Text>
-        <View className="px-5 flex-row items-center justify-between mt-5 gap-2">
-          <View className="border border-black w-[85%] h-[50px] bg-lightbg rounded-[50px] flex-row items-center justify-between px-5">
-            <TextInput
-              placeholder="Search"
-              className="text-xl h-full font-ssemibold w-[80%]"
-              // value={searchText}
-              // onChangeText={handleSearch}
-            />
-            <AntDesign name="search1" size={20} color="black" />
-          </View>
-          <TouchableOpacity className="rounded-full bg-disabledBG w-[50px] h-[50px]">
-            <Image
-              source={icons.filter}
-              className="w-6 h-6 object-contain m-auto"
-              tintColor={"#a32e2d"}
-            />
-          </TouchableOpacity>
-        </View>
-        {/*transaction tabs*/}
-        <View className="mt-5 flex-row items-center">
-          <TouchableOpacity className="w-1/2 border-b-2 pb-5 border-primary">
-            <Text className="text-center text-xl font-ssemibold text-primary">
-              Completed
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="w-1/2 pb-5 border-b-2 border-b-disabledBG">
-            <Text className="text-center text-xl font-ssemibold">
-              In progress(0)
-            </Text>
-          </TouchableOpacity>
-        </View>
         {/* transactions */}
         {isloading ? (
-          <View className="items-center justify-center">
-            <Loader />
+          <View className="items-center justify-center mt-5">
+            <Loader animationSource={transactionHistoryLoading} size={700} />
           </View>
         ) : (
-          <View className="px-5 mt-5 gap-8">
-            {Statement.map((ele, i) => {
-              return (
-                <View key={ele._id}>
-                  <Text className="text-2xl font-ssemibold text-primary ml-2">
-                    {formatDate(ele.date, true)}
-                  </Text>
-                  <View className=" bg-lightbg mt-2 border-disabledBG border p-5 h-[120px] rounded-2xl flex-row items-center gap-3">
-                    <View>
-                      <Image
-                        source={
-                          ele.transactionType === "debit"
-                            ? icons.arrowUp
-                            : icons.downright
-                        }
-                        className="w-10 h-10"
-                        tintColor={"#a32e2d"}
-                      />
-                    </View>
-                    <View>
-                      <Text className="text-xl font-sregular text-lighttext">
-                        {ele.details
-                          ? `${ele.details.transactionVia}/${ele.details.parsedDetails.recipentDetails.selectedBankName}/${ele.details.parsedDetails.recipentDetails.AccountNumber}`
-                          : "Transaction details here"}
-                      </Text>
-                      <Text className="text-xl font-sregular text-lighttext">
-                        {ele.details
-                          ? `${ele.details.parsedDetails.recipentDetails.firstname} ${ele.details.parsedDetails.recipentDetails.middleName} ${ele.details.parsedDetails.recipentDetails.lastName}`
-                          : "User name here"}
-                      </Text>
-                      <Text className="mt-2 text-2xl font-sbold">
-                        {ele.amount}.00 KES
-                      </Text>
-                    </View>
+          <View className="">
+            <Text className="text-2xl font-ssemibold ml-5">
+              Transaction History
+            </Text>
+            <View className="px-5 flex-row items-center justify-between mt-5 gap-2">
+              <View className="border border-black w-[85%] h-[50px] bg-lightbg rounded-[50px] flex-row items-center justify-between px-5">
+                <TextInput
+                  placeholder="Search"
+                  className="text-xl h-full font-ssemibold w-[80%]"
+                  // value={searchText}
+                  // onChangeText={handleSearch}
+                />
+                <AntDesign name="search1" size={20} color="black" />
+              </View>
+              <TouchableOpacity className="rounded-full bg-disabledBG w-[50px] h-[50px]">
+                <Image
+                  source={icons.filter}
+                  className="w-6 h-6 object-contain m-auto"
+                  tintColor={"#a32e2d"}
+                />
+              </TouchableOpacity>
+            </View>
+            {/*transaction tabs*/}
+            <View className="mt-5 flex-row items-center">
+              <TouchableOpacity className="w-1/2 border-b-2 pb-5 border-primary">
+                <Text className="text-center text-xl font-ssemibold text-primary">
+                  Completed
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="w-1/2 pb-5 border-b-2 border-b-disabledBG">
+                <Text className="text-center text-xl font-ssemibold">
+                  In progress(0)
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View className="px-5 mt-5 gap-8">
+              {groupedTransactionsArray.map((ele, i) => {
+                return (
+                  <View key={i}>
+                    {/* date */}
+                    <Text
+                      className="text-2xl font-ssemibold text-primary ml-2"
+                      maxFontSizeMultiplier={1}
+                    >
+                      {formatDate(ele.date, true)}
+                    </Text>
+                    {/* transaction */}
+                    {ele.transactions.map((data, index) => {
+                      return (
+                        <View key={index}>
+                          {data.details.type === "mobile-transfer" ? (
+                            <MobileTransferCard ele={data} />
+                          ) : data.details.type === "bank-transfer" ? (
+                            <BankTransferCard ele={data} />
+                          ) : data.details.type === "equity-transfer" ? (
+                            <EquityTransferCard ele={data} />
+                          ) : (
+                            <>
+                              <View className=" bg-lightbg mt-2 border-disabledBG border p-5 h-fit rounded-2xl flex-row items-center gap-3">
+                                <View>
+                                  <Image
+                                    source={
+                                      data.transactionType === "debit"
+                                        ? icons.arrowUp
+                                        : icons.downright
+                                    }
+                                    className="w-10 h-10"
+                                    tintColor={"#a32e2d"}
+                                  />
+                                </View>
+                                <View className="w-[80%]">
+                                  <Text
+                                    className="text-xl font-sregular"
+                                    maxFontSizeMultiplier={1}
+                                  >
+                                    Sms Charge
+                                  </Text>
+                                  <Text
+                                    className="mt-2 text-2xl font-sbold"
+                                    maxFontSizeMultiplier={1}
+                                  >
+                                    {formatBalance(data.details.smsCharges)} KES
+                                  </Text>
+                                </View>
+                              </View>
+                              <View className=" bg-lightbg mt-2 border-disabledBG border p-5 h-fit rounded-2xl flex-row items-center gap-3">
+                                <View>
+                                  <Image
+                                    source={
+                                      data?.transactionType === "debit"
+                                        ? icons.arrowUp
+                                        : icons.downright
+                                    }
+                                    className="w-10 h-10"
+                                    tintColor={"#a32e2d"}
+                                  />
+                                </View>
+                                <View>
+                                  <Text
+                                    className="text-xl font-sregular text-lighttext"
+                                    maxFontSizeMultiplier={1}
+                                  >
+                                    App/
+                                    {data.details
+                                      ? `${data.details.transactionVia}`
+                                      : "Transaction details here"}
+                                  </Text>
+                                  <Text
+                                    className="text-[15px] font-sregular text-lighttext"
+                                    maxFontSizeMultiplier={1}
+                                  >
+                                    {`${data.details.parsedDetails.recipentDetails.selectedBankName}`}
+                                  </Text>
+                                  <Text
+                                    className="text-xl font-sregular text-lighttext"
+                                    maxFontSizeMultiplier={1}
+                                  >
+                                    {`${data.details.parsedDetails.recipentDetails.AccountNumber}`}
+                                  </Text>
+                                  <Text
+                                    className="text-xl font-sregular text-lighttext"
+                                    maxFontSizeMultiplier={1}
+                                  >
+                                    {data.details
+                                      ? `${data.details.parsedDetails.recipentDetails.firstname} ${data.details.parsedDetails.recipentDetails.middleName} ${data.details.parsedDetails.recipentDetails.lastName}`
+                                      : "User name here"}
+                                  </Text>
+                                  <Text
+                                    className="mt-2 text-2xl font-sbold"
+                                    maxFontSizeMultiplier={1}
+                                  >
+                                    {formatBalance(data.amount)} KES
+                                  </Text>
+                                </View>
+                              </View>
+                            </>
+                          )}
+                        </View>
+                      );
+                    })}
                   </View>
-                </View>
-              );
-            })}
+                );
+              })}
+            </View>
           </View>
         )}
       </ScrollView>

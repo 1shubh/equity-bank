@@ -11,7 +11,7 @@ import {
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
 import { useGlobalContext } from "@/hoc/GlobalProvider";
-import { getInitials } from "../../constants/getInitialName";
+import { getInitials, formatBalance } from "../../constants/getInitialName";
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
 
@@ -80,12 +80,14 @@ export default function HomeScreen() {
   const [showbalance, setShowbalance] = useState(true);
   useEffect(() => {
     const currentHour = new Date().getHours();
-    if (currentHour < 12) {
+    if (currentHour >= 5 && currentHour < 12) {
       setGreeting("Good Morning");
-    } else if (currentHour < 18) {
+    } else if (currentHour >= 12 && currentHour < 16) {
       setGreeting("Good Afternoon");
-    } else {
+    } else if (currentHour >= 16 && currentHour < 21) {
       setGreeting("Good Evening");
+    } else {
+      setGreeting("Good Night");
     }
   }, []);
 
@@ -94,6 +96,11 @@ export default function HomeScreen() {
     await logout();
     router.push("/");
   };
+
+  function getFirstName(fullName) {
+    // Split the name by spaces and return the first part
+    return fullName.split(" ")[0];
+  }
 
   return (
     <ImageBackground
@@ -127,12 +134,13 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
         {/* scrollView */}
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} className="h-full">
           <View className="mt-5 items-center">
-            <Text className="font-mregular text-xl" maxFontSizeMultiplier={1}>
+            <Text className="font-sregular text-2xl" maxFontSizeMultiplier={1}>
               {greeting},{" "}
-              <Text className="font-mbold" maxFontSizeMultiplier={1}>
-                {user?.user.name}
+              <Text className="font-sbold text-2xl" maxFontSizeMultiplier={1}>
+                {/* {user?.user.name} */}
+                {getFirstName(user?.user.name)}
               </Text>
             </Text>
           </View>
@@ -159,13 +167,13 @@ export default function HomeScreen() {
                   </View>
 
                   <Text
-                    className="text-center font-msemibold"
+                    className="text-center font-sregular"
                     maxFontSizeMultiplier={1}
                   >
                     {ele.title}
                   </Text>
                   <Text
-                    className="text-center font-mregular text-primary"
+                    className="text-center text-[15px] font-ssemibold text-primary"
                     maxFontSizeMultiplier={1}
                   >
                     {ele.subtitle}
@@ -176,26 +184,97 @@ export default function HomeScreen() {
           </ScrollView>
 
           {/* balance show view */}
-          <View className="h-20 rounded-2xl bg-white border-2 border-[#f0f0f0] mt-2 flex-row items-center justify-between px-5">
-            <Text className="text-2xl font-ssemibold" maxFontSizeMultiplier={1}>
-              My Balance
-            </Text>
-            <View className="flex-row items-center gap-2">
+
+          <View className="rounded-2xl bg-white border-2 border-[#f0f0f0] mt-2">
+            <View
+              className={
+                showbalance
+                  ? "py-5 flex-row items-center justify-between px-5"
+                  : "py-5 flex-row items-center justify-between px-5 border-dashed border-b-2 border-b-[#f0f0f0]"
+              }
+            >
               <Text
-                className="text-xl font-ssemibold text-primary"
+                className="text-2xl font-ssemibold"
                 maxFontSizeMultiplier={1}
               >
-                {showbalance ? "Show Balance" : `${user?.user.balance} KES`}
+                My Balance
               </Text>
-              <TouchableOpacity onPress={() => setShowbalance(!showbalance)}>
-                <Image
-                  source={showbalance ? icons.eye : icons.eyeHide}
-                  tintColor={"#a32e2d"}
-                  className="w-8 h-8 object-contain"
-                />
-              </TouchableOpacity>
+              <View className="flex-row items-center gap-2">
+                <Text
+                  className="text-xl font-ssemibold text-primary"
+                  maxFontSizeMultiplier={1}
+                >
+                  {showbalance ? "Show Balance" : `Hide balance`}
+                </Text>
+                <TouchableOpacity onPress={() => setShowbalance(!showbalance)}>
+                  <Image
+                    source={showbalance ? icons.eye : icons.eyeHide}
+                    tintColor={"#a32e2d"}
+                    className="w-7 h-7 object-contain"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
+            {!showbalance && (
+              <View className="px-5 py-5">
+                <View className="flex-row w-[20%]">
+                  <Text
+                    className="text-3xl font-ssemibold text-primary"
+                    maxFontSizeMultiplier={1}
+                  >
+                    KES
+                  </Text>
+                  <Image source={icons.downbalnce} className="object-contain" />
+                </View>
+
+                <View className="flex-row items-center">
+                  <View className="w-1/2">
+                    <Text
+                      className="text-xl text-lighttext font-sregular"
+                      maxFontSizeMultiplier={1}
+                    >
+                      You have
+                    </Text>
+                    <View className="flex-row items-center gap-1">
+                      <Image
+                        source={icons.arrowupbalance}
+                        className="w-7 h-7 object-contain"
+                        tintColor={"#a32e2d"}
+                      />
+                      <Text
+                        className="text-xl font-ssregular"
+                        maxFontSizeMultiplier={1}
+                      >
+                        {formatBalance(user?.user.balance)}
+                      </Text>
+                    </View>
+                  </View>
+                  <View className="w-1/2">
+                    <Text
+                      className="text-xl text-lighttext font-sregular"
+                      maxFontSizeMultiplier={1}
+                    >
+                      You Owe
+                    </Text>
+                    <View className="flex-row items-center gap-1">
+                      <Image
+                        source={icons.arrowdownbalance}
+                        className="w-7 h-7 object-contain"
+                        tintColor={"#a32e2d"}
+                      />
+                      <Text
+                        className="text-xl font-ssregular"
+                        maxFontSizeMultiplier={1}
+                      >
+                        0.00
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
           </View>
+
           {/* other options */}
           <View className="h-40 bg-white border-2 border-[#f0f0f0] rounded-2xl mt-5 flex-row items-center justify-between px-10">
             {otherOptions.map((ele, i) => {
@@ -205,7 +284,7 @@ export default function HomeScreen() {
                   className="items-center"
                   onPress={() => router.push(ele.link)}
                 >
-                  <View className="bg-primary w-20 h-20 rounded-full object-contain p-2 items-center justify-center">
+                  <View className="bg-primary w-20 h-20 rounded-full object-contain items-center justify-center">
                     <Image
                       source={ele.icon}
                       tintColor={"white"}
@@ -213,7 +292,10 @@ export default function HomeScreen() {
                     />
                   </View>
 
-                  <Text className="text-[15px] font-mregular mt-2">
+                  <Text
+                    className="text-[16px] font-ssemibold mt-2"
+                    maxFontSizeMultiplier={1}
+                  >
                     {ele.title}
                   </Text>
                 </TouchableOpacity>
@@ -222,8 +304,17 @@ export default function HomeScreen() {
           </View>
           {/* my account */}
           <View className="mt-5 flex-row items-center justify-between">
-            <Text className="text-xl font-mregular">My Account</Text>
-            <Text className="text-xl font-mregular text-primary">View all</Text>
+            <Text className="text-2xl font-ssemibold" maxFontSizeMultiplier={1}>
+              My accounts
+            </Text>
+            <TouchableOpacity onPress={() => router.push("/myaccount")}>
+              <Text
+                className="text-xl font-ssemibold text-primary"
+                maxFontSizeMultiplier={1}
+              >
+                View all
+              </Text>
+            </TouchableOpacity>
           </View>
           <View className="h-[200px] mt-5 overflow-hidden rounded-3xl">
             <ImageBackground
@@ -233,11 +324,19 @@ export default function HomeScreen() {
             >
               <View className="flex-row items-center justify-between">
                 <View>
-                  <Text className="text-white font-sregular text-2xl">
+                  <Text
+                    className="text-white font-sregular text-xl"
+                    maxFontSizeMultiplier={1}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     {user?.user.name}
                   </Text>
-                  <Text className="text-white font-ssemibold text-3xl">
-                    {user?.user.balance} KES
+                  <Text
+                    className="text-white font-sregular text-2xl"
+                    maxFontSizeMultiplier={1}
+                  >
+                    {formatBalance(user?.user.balance)} KES
                   </Text>
                 </View>
                 <TouchableOpacity className="bg-white rounded-full p-2">
@@ -249,8 +348,8 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </View>
               <View>
-                <Text className="text-white">
-                  {user?.user.accountNumber} - Savings Account
+                <Text className="text-white font-sregular text-md">
+                  {user?.user.accountNumber} . Savings Account
                 </Text>
               </View>
             </ImageBackground>
